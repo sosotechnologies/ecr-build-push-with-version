@@ -17,8 +17,8 @@ jobs:
     - name: Bump version
       id: bump_version
       run: |
-        chmod +x build-push-to-ECR/bump_version.sh
-        ./build-push-to-ECR/bump_version.sh
+        chmod +x build-push-to-ecr/bump_version.sh
+        ./build-push-to-ecr/bump_version.sh
         new_version=$(cat VERSION)
         echo "new_version=$new_version" >> $GITHUB_ENV
         echo "::set-output name=new_version::$new_version"
@@ -27,14 +27,14 @@ jobs:
       run: |
         new_version=$(cat VERSION)
         echo "Updating WorkflowTemplate.yaml with version $new_version"
-        sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" build-push-to-ECR/WorkflowTemplate.yaml
+        sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" build-push-to-ecr/WorkflowTemplate.yaml
         echo "Updated WorkflowTemplate.yaml with version $new_version"
       
     - name: Commit updated files
       run: |
         git config --global user.name 'sosotechnologies'
         git config --global user.email 'sosotech2000@gmail.com'
-        git add VERSION build-push-to-ECR/WorkflowTemplate.yaml
+        git add VERSION build-push-to-ecr/WorkflowTemplate.yaml
         git commit -m "Bump-it-up version to ${{ steps.bump_version.outputs.new_version }}" || echo "No changes to commit"
         git stash
         git pull --rebase origin main
@@ -43,7 +43,7 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        cd build-push-to-ECR
+        cd build-push-to-ecr
         docker build -t ${{ steps.bump_version.outputs.new_version }} .
 
     - name: Run Trivy vulnerability scanner
@@ -61,7 +61,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: trivy-report
-        path: build-push-to-ECR/trivy-report.txt
+        path: build-push-to-ecr/trivy-report.txt
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -97,4 +97,4 @@ jobs:
       run: cat VERSION
 
     - name: Print WorkflowTemplate.yaml before update
-      run: cat build-push-to-ECR/WorkflowTemplate.yaml
+      run: cat build-push-to-ecr/WorkflowTemplate.yaml
