@@ -2,6 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
   name: world-pipeline
+  namespace: argo
   annotations:
     workflows.argoproj.io/description: |
       templates for world creation and destruction
