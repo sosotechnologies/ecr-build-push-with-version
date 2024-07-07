@@ -35,7 +35,7 @@ jobs:
         git config --global user.name 'sosotechnologies'
         git config --global user.email 'sosotech2000@gmail.com'
         git add VERSION build-push-to-ECR/WorkflowTemplate.yaml
-        git commit -m "Bump version to ${{ steps.bump_version.outputs.new_version }}" || echo "No changes to commit"
+        git commit -m "Bump-up version to ${{ steps.bump_version.outputs.new_version }}" || echo "No changes to commit"
         git stash
         git pull --rebase origin main
         git stash pop || echo "No stashed changes"
