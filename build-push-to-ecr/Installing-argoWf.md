@@ -45,7 +45,7 @@ kubectl -n argo apply -f 1-example-workflow.yaml
 
 ```sh
 kubectl create secret docker-registry ecr-registry-secret-argo \
-  --docker-server=368085106192.dkr.ecr.${AWS_REGION}.amazonaws.com \
+  --docker-server=<aws-account-number>.dkr.ecr.${AWS_REGION}.amazonaws.com \
   --docker-username=AWS \
   --docker-password=$(aws ecr get-login-password --region us-east-1) \
   --namespace=argo \
