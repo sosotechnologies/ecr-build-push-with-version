@@ -24,18 +24,18 @@ jobs:
     - name: Build the Docker image
       run: |
         cd build-push-to-ECR
-        docker build -t ${{ steps.bump_version.outputs.new_version }} .
+        docker build -t xcite:${{ steps.bump_version.outputs.new_version }} .
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: '${{ steps.bump_version.outputs.new_version }}'
+        image-ref: 'xcite:${{ steps.bump_version.outputs.new_version }}'
         format: 'table'
         exit-code: '0'
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'MEDIUM,HIGH,CRITICAL'
-        output: 'trivy-report.txt'
+        output: 'build-push-to-ECR/trivy-report.txt'
 
     - name: Upload Trivy report
       uses: actions/upload-artifact@v3
@@ -59,9 +59,9 @@ jobs:
         IMAGE_TAG=${{ steps.bump_version.outputs.new_version }}
         ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
         REPOSITORY=xcite
-        docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker tag xcite:$IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
-        docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
+        docker tag xcite:$IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
         docker push $ECR_REGISTRY/$REPOSITORY:latest
 
   deploy:
@@ -77,4 +77,4 @@ jobs:
       run: cat VERSION
 
     - name: Print WorkflowTemplate.yaml before update
-      run: cat build-push-to-gh/WorkflowTemplate.yaml
+      run: cat build-push-to-ECR/WorkflowTemplate.yaml
