@@ -91,7 +91,7 @@ jobs:
       run: cat VERSION
 
     - name: Print WorkflowTemplate.yaml before update
-      run: cat build-push-to-gh/WorkflowTemplate.yaml
+      run: cat build-push-to-ECR/WorkflowTemplate.yaml
 
 
 # name: Argo CD GitOps CI/CD
