@@ -17,25 +17,45 @@ jobs:
     - name: Bump version
       id: bump_version
       run: |
-        chmod +x build-push-to-ECR/bump_version.sh && ./build-push-to-ECR/bump_version.sh
+        chmod +x build-push-to-ECR/bump_version.sh
+        ./build-push-to-ECR/bump_version.sh
         new_version=$(cat VERSION)
+        echo "new_version=$new_version" >> $GITHUB_ENV
         echo "::set-output name=new_version::$new_version"
+
+    - name: Update WorkflowTemplate.yaml with new version
+      run: |
+        new_version=$(cat VERSION)
+        echo "Updating WorkflowTemplate.yaml with version $new_version"
+        sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" build-push-to-ECR/WorkflowTemplate.yaml
+        echo "Updated WorkflowTemplate.yaml with version $new_version"
+      
+    - name: Commit updated files
+      run: |
+        git config --global user.name 'sosotechnologies'
+        git config --global user.email 'sosotech2000@gmail.com'
+        git add VERSION build-push-to-ECR/WorkflowTemplate.yaml
+        git commit -m "Bump version to ${{ steps.bump_version.outputs.new_version }}" || echo "No changes to commit"
+        git stash
+        git pull --rebase origin main
+        git stash pop || echo "No stashed changes"
+        git push origin main
 
     - name: Build the Docker image
       run: |
         cd build-push-to-ECR
-        docker build -t xcite:${{ steps.bump_version.outputs.new_version }} .
+        docker build -t ${{ steps.bump_version.outputs.new_version }} .
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'xcite:${{ steps.bump_version.outputs.new_version }}'
+        image-ref: '${{ steps.bump_version.outputs.new_version }}'
         format: 'table'
         exit-code: '0'
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'MEDIUM,HIGH,CRITICAL'
-        output: 'build-push-to-ECR/trivy-report.txt'
+        output: 'trivy-report.txt'
 
     - name: Upload Trivy report
       uses: actions/upload-artifact@v3
@@ -54,28 +74,14 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Debugging ECR variables
-      run: |
-        IMAGE_TAG=${{ steps.bump_version.outputs.new_version }}
-        ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
-        REPOSITORY=xcite
-        echo "IMAGE_TAG=$IMAGE_TAG"
-        echo "ECR_REGISTRY=$ECR_REGISTRY"
-        echo "REPOSITORY=$REPOSITORY"
-        if [ -z "$ECR_REGISTRY" ]; then
-          echo "ECR_REGISTRY is not set!"
-          exit 1
-        fi
-
     - name: Tag and Push Docker image to Amazon ECR
       run: |
         IMAGE_TAG=${{ steps.bump_version.outputs.new_version }}
         ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
         REPOSITORY=xcite
-        echo "Tagging image: xcite:$IMAGE_TAG to $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG"
-        docker tag xcite:$IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
-        docker tag xcite:$IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
+        docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
         docker push $ECR_REGISTRY/$REPOSITORY:latest
 
   deploy:
@@ -92,92 +98,3 @@ jobs:
 
     - name: Print WorkflowTemplate.yaml before update
       run: cat build-push-to-ECR/WorkflowTemplate.yaml
-
-
-# name: Argo CD GitOps CI/CD
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# jobs:
-#   build:
-#     name: Build and Push the image
-#     runs-on: ubuntu-latest
-
-#     steps:
-#     - name: Check out code
-#       uses: actions/checkout@v2
-
-#     - name: Bump version
-#       id: bump_version
-#       run: |
-#         chmod +x build-push-to-ECR/bump_version.sh && ./build-push-to-ECR/bump_version.sh
-#         new_version=$(cat VERSION)
-#         echo "::set-output name=new_version::$new_version"
-
-#     - name: Build the Docker image
-#       run: |
-#         cd build-push-to-ECR
-#         docker build -t xcite:${{ steps.bump_version.outputs.new_version }} .
-
-#     - name: Run Trivy vulnerability scanner
-#       uses: aquasecurity/trivy-action@master
-#       with:
-#         image-ref: 'xcite:${{ steps.bump_version.outputs.new_version }}'
-#         format: 'table'
-#         exit-code: '0'
-#         ignore-unfixed: true
-#         vuln-type: 'os,library'
-#         severity: 'MEDIUM,HIGH,CRITICAL'
-#         output: 'build-push-to-ECR/trivy-report.txt'
-
-#     - name: Upload Trivy report
-#       uses: actions/upload-artifact@v3
-#       with:
-#         name: trivy-report
-#         path: build-push-to-ECR/trivy-report.txt
-
-#     - name: Configure AWS Credentials
-#       uses: aws-actions/configure-aws-credentials@v1
-#       with:
-#         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#         aws-region: us-east-1
-
-#     - name: Login to Amazon ECR
-#       id: login-ecr
-#       uses: aws-actions/amazon-ecr-login@v1
-
-#     - name: Debugging ECR variables
-#       run: |
-#         echo "IMAGE_TAG=${{ steps.bump_version.outputs.new_version }}"
-#         echo "ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com"
-#         echo "REPOSITORY=xcite"
-
-#     - name: Tag and Push Docker image to Amazon ECR
-#       run: |
-#         IMAGE_TAG=${{ steps.bump_version.outputs.new_version }}
-#         ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
-#         REPOSITORY=xcite
-#         echo "Tagging image: xcite:$IMAGE_TAG to $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG"
-#         docker tag xcite:$IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
-#         docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
-#         docker tag xcite:$IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
-#         docker push $ECR_REGISTRY/$REPOSITORY:latest
-
-#   deploy:
-#     name: Deploy to Argo CD
-#     runs-on: ubuntu-latest
-#     needs: build
-
-#     steps:
-#     - name: Check out code
-#       uses: actions/checkout@v2
-
-#     - name: Check VERSION file content
-#       run: cat VERSION
-
-#     - name: Print WorkflowTemplate.yaml before update
-#       run: cat build-push-to-gh/WorkflowTemplate.yaml
