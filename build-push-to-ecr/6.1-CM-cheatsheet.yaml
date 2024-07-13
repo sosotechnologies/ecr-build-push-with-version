@@ -10,7 +10,7 @@ data:
     mkdir -p ${WORKING_LOCATION}/${SECONDER_NAME}/${LOG_LOCATION}
     exec > >(tee -a ${WORKING_LOCATION}/${SECONDER_NAME}/${LOG_LOCATION}/${WORKFLOW_NAME}_setup_for_all_zones.log) 2>&1
     
-    start_time=$(date -u +%s)
+    start_time=$(date -u +%s)  ### comment
     echo "Syncing Pipeline config for zone folder" 
     aws s3 cp --region ${REGION} --no-progress s3://${SOSO_BUCKETED1}/${CONFIG_FILE} ${WORKING_LOCATION}/temp/${CONFIG_FILE}
     
