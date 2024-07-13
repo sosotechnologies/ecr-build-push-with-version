@@ -25,7 +25,7 @@ spec:
       - name: configFile
         value: "config.json"
       - name: version
-        value: "2.2.41"
+        value: "2.2.42"
   templates:
   - name: main
     inputs:
