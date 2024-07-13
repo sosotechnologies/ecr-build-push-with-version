@@ -1,2 +1,4 @@
 resources:
   - WorkflowTemplate.yaml
+  - 6-cheatsheet.yaml
+  - 6.1-CM-cheatsheet.yaml

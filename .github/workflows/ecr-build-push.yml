@@ -23,18 +23,18 @@ jobs:
         echo "new_version=$new_version" >> $GITHUB_ENV
         echo "::set-output name=new_version::$new_version"
 
-    - name: Update WorkflowTemplate.yaml with new version
+    - name: Update 6-cheatsheet.yaml with new version
       run: |
         new_version=$(cat VERSION)
-        echo "Updating WorkflowTemplate.yaml with version $new_version"
-        sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" build-push-to-ecr/WorkflowTemplate.yaml
-        echo "Updated WorkflowTemplate.yaml with version $new_version"
+        echo "Updating 6-cheatsheet.yaml with version $new_version"
+        sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" build-push-to-ecr/6-cheatsheet.yaml
+        echo "Updated 6-cheatsheet.yaml with version $new_version"
       
     - name: Commit updated files
       run: |
         git config --global user.name 'sosotechnologies'
         git config --global user.email 'sosotech2000@gmail.com'
-        git add VERSION build-push-to-ecr/WorkflowTemplate.yaml
+        git add VERSION build-push-to-ecr/6-cheatsheet.yaml
         git commit -m "Bump-it-up version to ${{ steps.bump_version.outputs.new_version }}" || echo "No changes to commit"
         git stash
         git pull --rebase origin main
@@ -96,5 +96,5 @@ jobs:
     - name: Check VERSION file content
       run: cat VERSION
 
-    - name: Print WorkflowTemplate.yaml before update
-      run: cat build-push-to-ecr/WorkflowTemplate.yaml
+    - name: Print 6-cheatsheet.yaml before update
+      run: cat build-push-to-ecr/6-cheatsheet.yaml
