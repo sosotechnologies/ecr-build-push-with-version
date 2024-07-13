@@ -32,3 +32,4 @@ data:
     export LOG_LOCATION="{{inputs.parameters.logLocation}}"
     export SECONDER_NAME="{{inputs.parameters.seconderName}}"
     export CONFIG_FILE="{{inputs.parameters.configFile}}"
+    export WF_VERSION="{{inputs.parameters.version}}"
