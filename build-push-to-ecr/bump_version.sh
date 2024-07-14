@@ -15,5 +15,7 @@ new_version="${version_parts[0]}.${version_parts[1]}.${version_parts[2]}"
 echo $new_version > VERSION
 
 sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" build-push-to-gh/6-cheatsheet.yaml
+sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" build-push-to-gh/WorkflowTemplate.yaml
+
 
 echo $new_version
