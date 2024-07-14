@@ -65,9 +65,9 @@ jobs:
         git add VERSION-WORLD build-push-to-ecr/worldworkflow.yaml
         git commit -m "Bump-it-up version to ${{ steps.bump_version.outputs.new_version }}" || echo "No changes to commit"
         git stash
-        git pull --rebase origin main
+        git pull --rebase origin two-files
         git stash pop || echo "No stashed changes"
-        git push origin main
+        git push origin two-files
 
     - name: Build the Docker image
       run: |
