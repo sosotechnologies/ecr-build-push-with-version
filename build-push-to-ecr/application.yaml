@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/sosotechnologies/ecr-build-push-with-version.git
-    targetRevision: two-files
+    targetRevision: HEAD
     path: build-push-to-ecr
     kustomize:
       namePrefix: build-push-to-ecr-
