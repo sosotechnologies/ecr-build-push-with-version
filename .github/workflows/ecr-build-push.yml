@@ -3,7 +3,7 @@ name: Argo CD GitOps CI/CD
 on:
   push:
     branches:
-      - main
+      - two-files
 
 jobs:
   build:
@@ -35,6 +35,34 @@ jobs:
         git config --global user.name 'sosotechnologies'
         git config --global user.email 'sosotech2000@gmail.com'
         git add VERSION build-push-to-ecr/WorkflowTemplate.yaml
+        git commit -m "Bump-it-up version to ${{ steps.bump_version.outputs.new_version }}" || echo "No changes to commit"
+        git stash
+        git pull --rebase origin main
+        git stash pop || echo "No stashed changes"
+        git push origin main
+    
+
+    - name: Bump version
+      id: bump_version2
+      run: |
+        chmod +x build-push-to-ecr/bump_version2.sh
+        ./build-push-to-ecr/bump_version2.sh
+        new_version=$(cat VERSION-WORLD)
+        echo "new_version=$new_version" >> $GITHUB_ENV
+        echo "::set-output name=new_version::$new_version"
+
+    - name: Update worldworkflow.yaml with new version
+      run: |
+        new_version=$(cat VERSION-WORLD)
+        echo "Updating worldworkflow.yaml with version $new_version"
+        sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" build-push-to-ecr/worldworkflow.yaml
+        echo "Updated worldworkflow.yaml with version $new_version"
+      
+    - name: Commit updated files
+      run: |
+        git config --global user.name 'sosotechnologies'
+        git config --global user.email 'sosotech2000@gmail.com'
+        git add VERSION-WORLD build-push-to-ecr/worldworkflow.yaml
         git commit -m "Bump-it-up version to ${{ steps.bump_version.outputs.new_version }}" || echo "No changes to commit"
         git stash
         git pull --rebase origin main
@@ -98,3 +126,6 @@ jobs:
 
     - name: Print WorkflowTemplate.yaml before update
       run: cat build-push-to-ecr/WorkflowTemplate.yaml
+
+    - name: Print worldworkflow.yaml before update
+      run: cat build-push-to-ecr/worldworkflow.yaml
