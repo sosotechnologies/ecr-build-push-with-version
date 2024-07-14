@@ -20,7 +20,5 @@ spec:
         value: "my-logs"
       - name: version
         value: "2.2.47"
-      - name: retryCount
-        value: "2.2.47"
       - name: worldInfoLocation
         value: "info-location"
