@@ -85,7 +85,7 @@ jobs:
     - name: Tag and Push Docker image to Amazon ECR
       run: |
         IMAGE_TAG=${{ steps.bump_versions.outputs.new_version }}
-        ECR_REGISTRY=${{ variable.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
+        ECR_REGISTRY=${{ variables.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
         REPOSITORY=xcite
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
