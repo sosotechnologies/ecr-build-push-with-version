@@ -14,8 +14,8 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
 
-    - name: Bump versions
-      id: bump_versions
+    - name: Bump version
+      id: bump_version
       run: |
         chmod +x build-push-to-ecr/bump_version.sh
         ./build-push-to-ecr/bump_version.sh
@@ -23,27 +23,47 @@ jobs:
         echo "new_version=$new_version" >> $GITHUB_ENV
         echo "::set-output name=new_version::$new_version"
 
-        chmod +x build-push-to-ecr/bump_version2.sh
-        ./build-push-to-ecr/bump_version2.sh
-        new_world_version=$(cat VERSION-WORLD)
-        echo "new_world_version=$new_world_version" >> $GITHUB_ENV
-        echo "::set-output name=new_world_version::$new_world_version"
-
-    - name: Update YAML files with new versions
+    - name: Update WorkflowTemplate.yaml with new version
       run: |
         new_version=$(cat VERSION)
-        new_world_version=$(cat VERSION-WORLD)
-        echo "Updating WorkflowTemplate.yaml and worldworkflow.yaml with versions $new_version and $new_world_version"
+        echo "Updating WorkflowTemplate.yaml with version $new_version"
         sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" build-push-to-ecr/WorkflowTemplate.yaml
-        sed -i "s/value: \"[0-9.]*\"/value: \"$new_world_version\"/g" build-push-to-ecr/worldworkflow.yaml
-        echo "Updated WorkflowTemplate.yaml and worldworkflow.yaml"
-
+        echo "Updated WorkflowTemplate.yaml with version $new_version"
+      
     - name: Commit updated files
       run: |
         git config --global user.name 'sosotechnologies'
         git config --global user.email 'sosotech2000@gmail.com'
-        git add VERSION VERSION-WORLD build-push-to-ecr/WorkflowTemplate.yaml build-push-to-ecr/worldworkflow.yaml
-        git commit -m "Bump versions to ${{ steps.bump_versions.outputs.new_version }} and ${{ steps.bump_versions.outputs.new_world_version }}" || echo "No changes to commit"
+        git add VERSION build-push-to-ecr/WorkflowTemplate.yaml
+        git commit -m "Bump-it-up version to ${{ steps.bump_version.outputs.new_version }}" || echo "No changes to commit"
+        git stash
+        git pull --rebase origin two-files
+        git stash pop || echo "No stashed changes"
+        git push origin two-files
+    
+
+    - name: Bump version
+      id: bump_version2
+      run: |
+        chmod +x build-push-to-ecr/bump_version2.sh
+        ./build-push-to-ecr/bump_version2.sh
+        new_version=$(cat VERSION-WORLD)
+        echo "new_version=$new_version" >> $GITHUB_ENV
+        echo "::set-output name=new_version::$new_version"
+
+    - name: Update worldworkflow.yaml with new version
+      run: |
+        new_version=$(cat VERSION-WORLD)
+        echo "Updating worldworkflow.yaml with version $new_version"
+        sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" build-push-to-ecr/worldworkflow.yaml
+        echo "Updated worldworkflow.yaml with version $new_version"
+      
+    - name: Commit updated files
+      run: |
+        git config --global user.name 'sosotechnologies'
+        git config --global user.email 'sosotech2000@gmail.com'
+        git add VERSION-WORLD build-push-to-ecr/worldworkflow.yaml
+        git commit -m "Bump-it-up version to ${{ steps.bump_version.outputs.new_version }}" || echo "No changes to commit"
         git stash
         git pull --rebase origin two-files
         git stash pop || echo "No stashed changes"
@@ -52,12 +72,12 @@ jobs:
     - name: Build the Docker image
       run: |
         cd build-push-to-ecr
-        docker build -t ${{ steps.bump_versions.outputs.new_version }} .
+        docker build -t ${{ steps.bump_version.outputs.new_version }} .
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: '${{ steps.bump_versions.outputs.new_version }}'
+        image-ref: '${{ steps.bump_version.outputs.new_version }}'
         format: 'table'
         exit-code: '0'
         ignore-unfixed: true
@@ -84,7 +104,7 @@ jobs:
 
     - name: Tag and Push Docker image to Amazon ECR
       run: |
-        IMAGE_TAG=${{ steps.bump_versions.outputs.new_version }}
+        IMAGE_TAG=${{ steps.bump_version.outputs.new_version }}
         ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
         REPOSITORY=xcite
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
