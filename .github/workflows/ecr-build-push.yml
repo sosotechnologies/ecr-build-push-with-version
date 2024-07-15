@@ -23,8 +23,8 @@ jobs:
         echo "new_version=$new_version" >> $GITHUB_ENV
         echo "::set-output name=new_version::$new_version"
 
-        chmod +x build-push-to-ecr/bump_version2.sh
-        ./build-push-to-ecr/bump_version2.sh
+        chmod +x build-push-to-ecr/bump_version_world.sh
+        ./build-push-to-ecr/bump_version_world.sh
         new_world_version=$(cat VERSION-WORLD)
         echo "new_world_version=$new_world_version" >> $GITHUB_ENV
         echo "::set-output name=new_world_version::$new_world_version"
@@ -51,7 +51,7 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        cd build-push-to-ecr
+        cd docker
         docker build -t ${{ steps.bump_versions.outputs.new_version }} .
 
     - name: Run Trivy vulnerability scanner
