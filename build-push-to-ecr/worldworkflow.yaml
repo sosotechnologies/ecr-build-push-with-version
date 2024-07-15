@@ -19,6 +19,6 @@ spec:
       - name: logLocation
         value: "my-logs"
       - name: version
-        value: "2.2.61"
+        value: "2.2.62"
       - name: worldInfoLocation
         value: "info-location"
