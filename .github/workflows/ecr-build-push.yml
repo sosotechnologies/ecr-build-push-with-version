@@ -17,14 +17,14 @@ jobs:
     - name: Bump versions
       id: bump_versions
       run: |
-        chmod +x world/bump_version.sh
-        ./world/bump_version.sh
+        chmod +x world/bump_version_world_template.sh
+        ./world/bump_version_world_template.sh
         new_version=$(cat VERSION)
         echo "new_version=$new_version" >> $GITHUB_ENV
         echo "::set-output name=new_version::$new_version"
 
-        chmod +x world/bump_version_world.sh
-        ./world/bump_version_world.sh
+        chmod +x world/bump_version_world_workflow.sh
+        ./world/bump_version_world_workflow.sh
         new_world_version=$(cat VERSION-WORLD)
         echo "new_world_version=$new_world_version" >> $GITHUB_ENV
         echo "::set-output name=new_world_version::$new_world_version"
@@ -51,7 +51,7 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        cd docker
+        cd docker/world-docker
         docker build -t ${{ steps.bump_versions.outputs.new_version }} .
 
     - name: Run Trivy vulnerability scanner
