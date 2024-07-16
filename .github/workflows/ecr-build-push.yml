@@ -107,8 +107,8 @@ jobs:
     - name: Print WorkflowTemplate.yaml before update
       run: cat world/WorkflowTemplate.yaml
     
-    - name: Check VERSION-TEMP-WORLD file content
-      run: cat VERSION-WF-WORLD
+    # - name: Check VERSION-TEMP-WORLD file content
+    #   run: cat VERSION-WF-WORLD
 
-    - name: Print worldworkflow.yaml before update
-      run: cat world/worldworkflow.yaml
+    # - name: Print worldworkflow.yaml before update
+    #   run: cat world/worldworkflow.yaml
