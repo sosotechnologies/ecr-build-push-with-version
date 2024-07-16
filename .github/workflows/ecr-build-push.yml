@@ -17,32 +17,32 @@ jobs:
     - name: Bump versions
       id: bump_versions
       run: |
-        chmod +x build-push-to-ecr/bump_version.sh
-        ./build-push-to-ecr/bump_version.sh
-        new_version=$(cat VERSION)
+        chmod +x world/bump_version_world_template.sh
+        ./world/bump_version_world_template.sh
+        new_version=$(cat VERSION-TEMP-WORLD)
         echo "new_version=$new_version" >> $GITHUB_ENV
         echo "::set-output name=new_version::$new_version"
 
-        chmod +x build-push-to-ecr/bump_version2.sh
-        ./build-push-to-ecr/bump_version2.sh
-        new_world_version=$(cat VERSION-WORLD)
+        chmod +x world/bump_version_world_workflow.sh
+        ./world/bump_version_world_workflow.sh
+        new_world_version=$(cat VERSION-WF-WORLD)
         echo "new_world_version=$new_world_version" >> $GITHUB_ENV
         echo "::set-output name=new_world_version::$new_world_version"
 
     - name: Update YAML files with new versions
       run: |
-        new_version=$(cat VERSION)
-        new_world_version=$(cat VERSION-WORLD)
+        new_version=$(cat VERSION-TEMP-WORLD)
+        new_world_version=$(cat VERSION-WF-WORLD)
         echo "Updating WorkflowTemplate.yaml and worldworkflow.yaml with versions $new_version and $new_world_version"
-        sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" build-push-to-ecr/WorkflowTemplate.yaml
-        sed -i "s/value: \"[0-9.]*\"/value: \"$new_world_version\"/g" build-push-to-ecr/worldworkflow.yaml
+        sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" world/WorkflowTemplate.yaml
+        sed -i "s/value: \"[0-9.]*\"/value: \"$new_world_version\"/g" world/worldworkflow.yaml
         echo "Updated WorkflowTemplate.yaml and worldworkflow.yaml"
 
     - name: Commit updated files
       run: |
         git config --global user.name 'sosotechnologies'
         git config --global user.email 'sosotech2000@gmail.com'
-        git add VERSION VERSION-WORLD build-push-to-ecr/WorkflowTemplate.yaml build-push-to-ecr/worldworkflow.yaml
+        git add VERSION-TEMP-WORLD VERSION-WF-WORLD world/WorkflowTemplate.yaml world/worldworkflow.yaml
         git commit -m "Bump versions to ${{ steps.bump_versions.outputs.new_version }} and ${{ steps.bump_versions.outputs.new_world_version }}" || echo "No changes to commit"
         git stash
         git pull --rebase origin two-files
@@ -51,7 +51,7 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        cd build-push-to-ecr
+        cd docker/world-docker
         docker build -t ${{ steps.bump_versions.outputs.new_version }} .
 
     - name: Run Trivy vulnerability scanner
@@ -69,7 +69,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: trivy-report
-        path: build-push-to-ecr/trivy-report.txt
+        path: world/trivy-report.txt
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -93,7 +93,7 @@ jobs:
         docker push $ECR_REGISTRY/$REPOSITORY:latest
 
   deploy:
-    name: Deploy to Argo-CD
+    name: Deploy to Argo CD
     runs-on: ubuntu-latest
     needs: build
 
@@ -101,11 +101,14 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
 
-    - name: Check VERSION file content
-      run: cat VERSION
+    - name: Check VERSION-TEMP-WORLD file content
+      run: cat VERSION-TEMP-WORLD
 
     - name: Print WorkflowTemplate.yaml before update
-      run: cat build-push-to-ecr/WorkflowTemplate.yaml
+      run: cat world/WorkflowTemplate.yaml
+    
+    - name: Check VERSION-TEMP-WORLD file content
+      run: cat VERSION-WF-WORLD
 
     - name: Print worldworkflow.yaml before update
-      run: cat build-push-to-ecr/worldworkflow.yaml
+      run: cat world/worldworkflow.yaml
