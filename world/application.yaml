@@ -8,9 +8,9 @@ spec:
   source:
     repoURL: https://github.com/sosotechnologies/ecr-build-push-with-version.git
     targetRevision: HEAD
-    path: docker #build-push-to-ecr
+    path: world #build-push-to-ecr
     kustomize:
-      namePrefix: docker- #build-push-to-ecr-
+      namePrefix: world- #build-push-to-ecr-
   destination:
     namespace: default
     server: https://kubernetes.default.svc
