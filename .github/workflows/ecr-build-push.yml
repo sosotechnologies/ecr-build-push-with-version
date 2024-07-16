@@ -19,20 +19,20 @@ jobs:
       run: |
         chmod +x world/bump_version_world_template.sh
         ./world/bump_version_world_template.sh
-        new_version=$(cat VERSION)
+        new_version=$(cat VERSION-TEMP-WORLD)
         echo "new_version=$new_version" >> $GITHUB_ENV
         echo "::set-output name=new_version::$new_version"
 
         chmod +x world/bump_version_world_workflow.sh
         ./world/bump_version_world_workflow.sh
-        new_world_version=$(cat VERSION-WORLD)
+        new_world_version=$(cat VERSION-WF-WORLD)
         echo "new_world_version=$new_world_version" >> $GITHUB_ENV
         echo "::set-output name=new_world_version::$new_world_version"
 
     - name: Update YAML files with new versions
       run: |
-        new_version=$(cat VERSION)
-        new_world_version=$(cat VERSION-WORLD)
+        new_version=$(cat VERSION-TEMP-WORLD)
+        new_world_version=$(cat VERSION-WF-WORLD)
         echo "Updating WorkflowTemplate.yaml and worldworkflow.yaml with versions $new_version and $new_world_version"
         sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" world/WorkflowTemplate.yaml
         sed -i "s/value: \"[0-9.]*\"/value: \"$new_world_version\"/g" world/worldworkflow.yaml
@@ -42,7 +42,7 @@ jobs:
       run: |
         git config --global user.name 'sosotechnologies'
         git config --global user.email 'sosotech2000@gmail.com'
-        git add VERSION VERSION-WORLD world/WorkflowTemplate.yaml world/worldworkflow.yaml
+        git add VERSION-TEMP-WORLD VERSION-WF-WORLD world/WorkflowTemplate.yaml world/worldworkflow.yaml
         git commit -m "Bump versions to ${{ steps.bump_versions.outputs.new_version }} and ${{ steps.bump_versions.outputs.new_world_version }}" || echo "No changes to commit"
         git stash
         git pull --rebase origin two-files
