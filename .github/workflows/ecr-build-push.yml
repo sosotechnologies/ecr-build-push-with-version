@@ -3,7 +3,7 @@ name: Argo CD GitOps CI/CD
 on:
   push:
     branches:
-      - two-files
+      - main # two-files
 
 jobs:
   build:
@@ -45,9 +45,9 @@ jobs:
         git add VERSION-TEMP-WORLD VERSION-WF-WORLD world/WorkflowTemplate.yaml world/worldworkflow.yaml
         git commit -m "Bump versions to ${{ steps.bump_versions.outputs.new_version }} and ${{ steps.bump_versions.outputs.new_world_version }}" || echo "No changes to commit"
         git stash
-        git pull --rebase origin two-files
+        git pull --rebase origin main
         git stash pop || echo "No stashed changes"
-        git push origin two-files
+        git push origin main
 
     - name: Build the Docker image
       run: |
