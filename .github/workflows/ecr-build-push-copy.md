@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build and Push the image
+    name: Build and Push the images
     runs-on: ubuntu-latest
 
     steps:
@@ -29,10 +29,24 @@ jobs:
         echo "new_world_version=$new_world_version" >> $GITHUB_ENV
         echo "::set-output name=new_world_version::$new_world_version"
 
+        chmod +x world/bump_version_cpu_task.sh
+        ./world/bump_version_cpu_task.sh
+        new_cpu_version=$(cat VERSION-CPU-TASK)
+        echo "new_cpu_version=$new_cpu_version" >> $GITHUB_ENV
+        echo "::set-output name=new_cpu_version::$new_cpu_version"
+
+        chmod +x world/bump_version_gpu_task.sh
+        ./world/bump_version_gpu_task.sh
+        new_gpu_version=$(cat VERSION-GPU-TASK)
+        echo "new_gpu_version=$new_gpu_version" >> $GITHUB_ENV
+        echo "::set-output name=new_gpu_version::$new_gpu_version"
+
     - name: Update YAML files with new versions
       run: |
         new_version=$(cat VERSION-TEMP-WORLD)
         new_world_version=$(cat VERSION-WF-WORLD)
+        new_cpu_version=$(cat VERSION-CPU-TASK)
+        new_gpu_version=$(cat VERSION-GPU-TASK)
         echo "Updating WorkflowTemplate.yaml and worldworkflow.yaml with versions $new_version and $new_world_version"
         sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" world/WorkflowTemplate.yaml
         sed -i "s/value: \"[0-9.]*\"/value: \"$new_world_version\"/g" world/worldworkflow.yaml
@@ -42,34 +56,12 @@ jobs:
       run: |
         git config --global user.name 'sosotechnologies'
         git config --global user.email 'sosotech2000@gmail.com'
-        git add VERSION-TEMP-WORLD VERSION-WF-WORLD world/WorkflowTemplate.yaml world/worldworkflow.yaml
-        git commit -m "Bump versions to ${{ steps.bump_versions.outputs.new_version }} and ${{ steps.bump_versions.outputs.new_world_version }}" || echo "No changes to commit"
+        git add VERSION-TEMP-WORLD VERSION-WF-WORLD VERSION-CPU-TASK VERSION-GPU-TASK world/WorkflowTemplate.yaml world/worldworkflow.yaml
+        git commit -m "Bump versions to ${{ steps.bump_versions.outputs.new_version }}, ${{ steps.bump_versions.outputs.new_world_version }}, ${{ steps.bump_versions.outputs.new_cpu_version }}, and ${{ steps.bump_versions.outputs.new_gpu_version }}" || echo "No changes to commit"
         git stash
         git pull --rebase origin main
         git stash pop || echo "No stashed changes"
         git push origin main
-
-    - name: Build the Docker image
-      run: |
-        cd docker/world-docker
-        docker build -t ${{ steps.bump_versions.outputs.new_version }} .
-
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: '${{ steps.bump_versions.outputs.new_version }}'
-        format: 'table'
-        exit-code: '0'
-        ignore-unfixed: true
-        vuln-type: 'os,library'
-        severity: 'MEDIUM,HIGH,CRITICAL'
-        output: 'trivy-report.txt'
-
-    - name: Upload Trivy report
-      uses: actions/upload-artifact@v3
-      with:
-        name: trivy-report
-        path: world/trivy-report.txt
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -82,8 +74,10 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Tag and Push Docker image to Amazon ECR
+    - name: Build and Push world-docker image
       run: |
+        cd docker/world-docker
+        docker build -t ${{ steps.bump_versions.outputs.new_version }} .
         IMAGE_TAG=${{ steps.bump_versions.outputs.new_version }}
         ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
         REPOSITORY=xcite
@@ -91,24 +85,43 @@ jobs:
         docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
         docker push $ECR_REGISTRY/$REPOSITORY:latest
+        cd ../..
 
-  deploy:
-    name: Deploy to Argo CD
-    runs-on: ubuntu-latest
-    needs: build
+    - name: Build and Push cpu_tasks image
+      run: |
+        cd docker/cpu_tasks
+        docker build -t ${{ steps.bump_versions.outputs.new_cpu_version }} .
+        IMAGE_TAG=${{ steps.bump_versions.outputs.new_cpu_version }}
+        ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
+        REPOSITORY=cpu-task
+        docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
+        docker push $ECR_REGISTRY/$REPOSITORY:latest
+        cd ../..
 
-    steps:
-    - name: Check out code
-      uses: actions/checkout@v2
+    - name: Build and Push gpu_tasks image
+      run: |
+        cd docker/gpu_tasks
+        docker build -t ${{ steps.bump_versions.outputs.new_gpu_version }} .
+        IMAGE_TAG=${{ steps.bump_versions.outputs.new_gpu_version }}
+        ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
+        REPOSITORY=gpu-task
+        docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
+        docker push $ECR_REGISTRY/$REPOSITORY:latest
+        cd ../..
 
-    - name: Check VERSION-TEMP-WORLD file content
-      run: cat VERSION-TEMP-WORLD
-
-    - name: Print WorkflowTemplate.yaml before update
-      run: cat world/WorkflowTemplate.yaml
-    
-    # - name: Check VERSION-TEMP-WORLD file content
-    #   run: cat VERSION-WF-WORLD
-
-    # - name: Print worldworkflow.yaml before update
-    #   run: cat world/worldworkflow.yaml
+    - name: Build and Push OSM image
+      run: |
+        cd docker/OSM
+        docker build -t ${{ steps.bump_versions.outputs.new_version }} .
+        IMAGE_TAG=${{ steps.bump_versions.outputs.new_version }}
+        ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
+        REPOSITORY=osm
+        docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
+        docker push $ECR_REGISTRY/$REPOSITORY:latest
+        cd ../..
