@@ -2,7 +2,7 @@
 
 # Check if VERSION file exists
 if [ ! -f VERSION-GPU-TASK ]; then
-  echo "2.2.19" > VERSION-GPU-TASK
+  echo "2.1.2" > VERSION-GPU-TASK
 fi
 
 current_version=$(cat VERSION-GPU-TASK)

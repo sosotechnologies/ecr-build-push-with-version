@@ -2,7 +2,7 @@
 
 # Check if VERSION-TEMP-WORLD file exists
 if [ ! -f VERSION-TEMP-WORLD ]; then
-  echo "2.2.19" > VERSION-TEMP-WORLD
+  echo "2.1.2" > VERSION-TEMP-WORLD
 fi
 
 current_version=$(cat VERSION-TEMP-WORLD)

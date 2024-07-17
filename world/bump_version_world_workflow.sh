@@ -2,7 +2,7 @@
 
 # Check if VERSION file exists
 if [ ! -f VERSION-WF-WORLD ]; then
-  echo "2.2.19" > VERSION-WF-WORLD
+  echo "2.1.2" > VERSION-WF-WORLD
 fi
 
 current_version=$(cat VERSION-WF-WORLD)

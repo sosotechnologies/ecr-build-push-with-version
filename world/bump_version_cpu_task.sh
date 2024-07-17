@@ -2,7 +2,7 @@
 
 # Check if VERSION file exists
 if [ ! -f VERSION-CPU-TASK ]; then
-  echo "2.2.19" > VERSION-CPU-TASK
+  echo "2.1.2" > VERSION-CPU-TASK
 fi
 
 current_version=$(cat VERSION-CPU-TASK)
