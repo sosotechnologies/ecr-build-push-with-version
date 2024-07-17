@@ -1,13 +1,15 @@
-## Create an ECR Repo: xcite
-call it: xcite
+## Create 4 ECR Repos: xcite
+- xcite
+- gpu-task
+- cpu-task
+- osm
 
 ## Add the following variables: 
 
-AWS_ACCESS_KEY_ID
-AWS_ACCOUNT_NUMBER
-AWS_ECR_REPO
-AWS_REGION
-AWS_SECRET_ACCESS_KEY
+- AWS_ACCESS_KEY_ID
+- AWS_ACCOUNT_NUMBER
+- AWS_REGION
+- AWS_SECRET_ACCESS_KEY
 
 
 ## Run image
