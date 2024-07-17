@@ -23,10 +23,6 @@ jobs:
         echo "new_version_gpu=$new_version_gpu" >> $GITHUB_ENV
         echo "new_version_temp_world=$new_version_temp_world" >> $GITHUB_ENV
         echo "new_version_wf_world=$new_version_wf_world" >> $GITHUB_ENV
-        echo "::set-output name=new_version_cpu::$new_version_cpu"
-        echo "::set-output name=new_version_gpu::$new_version_gpu"
-        echo "::set-output name=new_version_temp_world::$new_version_temp_world"
-        echo "::set-output name=new_version_wf_world::$new_version_wf_world"
 
     - name: Update YAML files with new versions
       run: |
@@ -45,7 +41,7 @@ jobs:
         git config --global user.name 'sosotechnologies'
         git config --global user.email 'sosotech2000@gmail.com'
         git add VERSIONS argo-artifacts/WorkflowTemplate.yaml argo-artifacts/worldworkflow.yaml argo-artifacts/world-pipeline.yaml
-        git commit -m "Bump versions to ${{ steps.bump_versions.outputs.new_version_cpu }}, ${{ steps.bump_versions.outputs.new_version_gpu }}, ${{ steps.bump_versions.outputs.new_version_temp_world }}, and ${{ steps.bump_versions.outputs.new_version_wf_world }}" || echo "No changes to commit"
+        git commit -m "Bump versions to ${{ env.new_version_cpu }}, ${{ env.new_version_gpu }}, ${{ env.new_version_temp_world }}, and ${{ env.new_version_wf_world }}" || echo "No changes to commit"
         git stash
         git pull --rebase origin main
         git stash pop || echo "No stashed changes"
@@ -65,8 +61,8 @@ jobs:
     - name: Build and Push world-docker image
       run: |
         cd docker/world-docker
-        docker build -t ${{ steps.bump_versions.outputs.new_version_temp_world }} .
-        IMAGE_TAG=${{ steps.bump_versions.outputs.new_version_temp_world }}
+        docker build -t ${{ env.new_version_temp_world }} .
+        IMAGE_TAG=${{ env.new_version_temp_world }}
         ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
         REPOSITORY=xcite
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
@@ -78,8 +74,8 @@ jobs:
     - name: Build and Push cpu_tasks image
       run: |
         cd docker/cpu_tasks
-        docker build -t ${{ steps.bump_versions.outputs.new_version_cpu }} .
-        IMAGE_TAG=${{ steps.bump_versions.outputs.new_version_cpu }}
+        docker build -t ${{ env.new_version_cpu }} .
+        IMAGE_TAG=${{ env.new_version_cpu }}
         ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
         REPOSITORY=cpu-task
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
@@ -91,8 +87,8 @@ jobs:
     - name: Build and Push gpu_tasks image
       run: |
         cd docker/gpu_tasks
-        docker build -t ${{ steps.bump_versions.outputs.new_version_gpu }} .
-        IMAGE_TAG=${{ steps.bump_versions.outputs.new_version_gpu }}
+        docker build -t ${{ env.new_version_gpu }} .
+        IMAGE_TAG=${{ env.new_version_gpu }}
         ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
         REPOSITORY=gpu-task
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
@@ -104,8 +100,8 @@ jobs:
     - name: Build and Push OSM image
       run: |
         cd docker/OSM
-        docker build -t ${{ steps.bump_versions.outputs.new_version_temp_world }} .
-        IMAGE_TAG=${{ steps.bump_versions.outputs.new_version_temp_world }}
+        docker build -t ${{ env.new_version_temp_world }} .
+        IMAGE_TAG=${{ env.new_version_temp_world }}
         ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
         REPOSITORY=osm
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
