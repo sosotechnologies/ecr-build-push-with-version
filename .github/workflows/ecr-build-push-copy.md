@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build and Push the images
+    name: Build and Push the image
     runs-on: ubuntu-latest
 
     steps:
@@ -49,22 +49,10 @@ jobs:
         git stash pop || echo "No stashed changes"
         git push origin main
 
-    - name: Build and push Docker images
+    - name: Build the Docker image
       run: |
-        IMAGES=("world-docker" "cpu_tasks" "gpu_tasks" "OSM")
-        REPOSITORIES=("xcite" "cpu-task" "gpu-task" "osm")
-        for i in "${!IMAGES[@]}"; do
-          cd docker/${IMAGES[$i]}
-          docker build -t ${{ steps.bump_versions.outputs.new_version }} .
-          IMAGE_TAG=${{ steps.bump_versions.outputs.new_version }}
-          ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
-          REPOSITORY=${REPOSITORIES[$i]}
-          docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
-          docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
-          docker push $ECR_REGISTRY/$REPOSITORY:latest
-          cd -
-        done
+        cd docker/world-docker
+        docker build -t ${{ steps.bump_versions.outputs.new_version }} .
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
@@ -93,3 +81,34 @@ jobs:
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Tag and Push Docker image to Amazon ECR
+      run: |
+        IMAGE_TAG=${{ steps.bump_versions.outputs.new_version }}
+        ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
+        REPOSITORY=xcite
+        docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
+        docker push $ECR_REGISTRY/$REPOSITORY:latest
+
+  deploy:
+    name: Deploy to Argo CD
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Check VERSION-TEMP-WORLD file content
+      run: cat VERSION-TEMP-WORLD
+
+    - name: Print WorkflowTemplate.yaml before update
+      run: cat world/WorkflowTemplate.yaml
+    
+    # - name: Check VERSION-TEMP-WORLD file content
+    #   run: cat VERSION-WF-WORLD
+
+    # - name: Print worldworkflow.yaml before update
+    #   run: cat world/worldworkflow.yaml
