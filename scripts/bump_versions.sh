@@ -14,10 +14,10 @@ bump_version() {
   echo "${version_parts[0]}.${version_parts[1]}.${version_parts[2]}"
 }
 
-new_version_cpu=$(bump_version ${versions[0]})
-new_version_gpu=$(bump_version ${versions[1]})
-new_version_temp_world=$(bump_version ${versions[2]})
-new_version_wf_world=$(bump_version ${versions[3]})
+new_version_cpu=$(bump_version "${versions[0]}")
+new_version_gpu=$(bump_version "${versions[1]}")
+new_version_temp_world=$(bump_version "${versions[2]}")
+new_version_wf_world=$(bump_version "${versions[3]}")
 
 echo -e "$new_version_cpu\n$new_version_gpu\n$new_version_temp_world\n$new_version_wf_world" > VERSIONS
 
