@@ -17,26 +17,26 @@ jobs:
     - name: Bump versions
       id: bump_versions
       run: |
-        chmod +x world/bump_version_world_template.sh
-        ./world/bump_version_world_template.sh
+        chmod +x scripts/bump_version_world_template.sh
+        ./scripts/bump_version_world_template.sh
         new_version=$(cat VERSION-TEMP-WORLD)
         echo "new_version=$new_version" >> $GITHUB_ENV
         echo "::set-output name=new_version::$new_version"
 
-        chmod +x world/bump_version_world_workflow.sh
-        ./world/bump_version_world_workflow.sh
+        chmod +x scripts/bump_version_world_workflow.sh
+        ./scripts/bump_version_world_workflow.sh
         new_world_version=$(cat VERSION-WF-WORLD)
         echo "new_world_version=$new_world_version" >> $GITHUB_ENV
         echo "::set-output name=new_world_version::$new_world_version"
 
-        chmod +x world/bump_version_cpu_task.sh
-        ./world/bump_version_cpu_task.sh
+        chmod +x scripts/bump_version_cpu_task.sh
+        ./scripts/bump_version_cpu_task.sh
         new_cpu_version=$(cat VERSION-CPU-TASK)
         echo "new_cpu_version=$new_cpu_version" >> $GITHUB_ENV
         echo "::set-output name=new_cpu_version::$new_cpu_version"
 
-        chmod +x world/bump_version_gpu_task.sh
-        ./world/bump_version_gpu_task.sh
+        chmod +x scripts/bump_version_gpu_task.sh
+        ./scripts/bump_version_gpu_task.sh
         new_gpu_version=$(cat VERSION-GPU-TASK)
         echo "new_gpu_version=$new_gpu_version" >> $GITHUB_ENV
         echo "::set-output name=new_gpu_version::$new_gpu_version"

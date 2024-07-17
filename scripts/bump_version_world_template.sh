@@ -14,6 +14,4 @@ new_version="${version_parts[0]}.${version_parts[1]}.${version_parts[2]}"
 # Write the new version back to the VERSION-TEMP-WORLD file
 echo $new_version > VERSION-TEMP-WORLD
 
-# sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" build-push-to-gh/WorkflowTemplate.yaml
-
 echo $new_version
