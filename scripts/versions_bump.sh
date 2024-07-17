@@ -1,16 +1,17 @@
 #!/bin/bash
 
-# Read the current versions
-source VERSIONS
+# Check if VERSION file exists
+if [ ! -f VERSIONS ]; then
+  echo "2.1.2" > VERSIONS
+fi
 
-# Bump versions (example logic to bump patch version)
-new_world_version=$(echo $world_version | awk -F. -v OFS=. '{$NF++; print}')
-new_cpu_version=$(echo $cpu_version | awk -F. -v OFS=. '{$NF++; print}')
-new_gpu_version=$(echo $gpu_version | awk -F. -v OFS. '{$NF++; print}')
-new_osm_version=$(echo $osm_version | awk -F. -v OFS=. '{$NF++; print}')
+current_version=$(cat VERSIONS)
 
-# Update the VERSIONS file with the new versions
-echo "world_version=$new_world_version" > VERSIONS
-echo "cpu_version=$new_cpu_version" >> VERSIONS
-echo "gpu_version=$new_gpu_version" >> VERSIONS
-echo "osm_version=$new_osm_version" >> VERSIONS
+IFS='.' read -r -a version_parts <<< "$current_version"
+version_parts[2]=$((version_parts[2] + 1))
+new_version="${version_parts[0]}.${version_parts[1]}.${version_parts[2]}"
+
+# Write the new version back to the VERSION file
+echo $new_version > VERSIONS
+
+echo $new_version
