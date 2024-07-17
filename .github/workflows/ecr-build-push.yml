@@ -48,15 +48,15 @@ jobs:
         new_cpu_version=$(cat VERSION-CPU-TASK)
         new_gpu_version=$(cat VERSION-GPU-TASK)
         echo "Updating WorkflowTemplate.yaml and worldworkflow.yaml with versions $new_version and $new_world_version"
-        sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" workflow-yamls/WorkflowTemplate.yaml
-        sed -i "s/value: \"[0-9.]*\"/value: \"$new_world_version\"/g" workflow-yamls/worldworkflow.yaml
+        sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" argo-n-workflow-yamls/WorkflowTemplate.yaml
+        sed -i "s/value: \"[0-9.]*\"/value: \"$new_world_version\"/g" argo-n-workflow-yamls/worldworkflow.yaml
         echo "Updated WorkflowTemplate.yaml and worldworkflow.yaml"
 
     - name: Commit updated files
       run: |
         git config --global user.name 'sosotechnologies'
         git config --global user.email 'sosotech2000@gmail.com'
-        git add VERSION-TEMP-WORLD VERSION-WF-WORLD VERSION-CPU-TASK VERSION-GPU-TASK workflow-yamls/WorkflowTemplate.yaml workflow-yamls/worldworkflow.yaml
+        git add VERSION-TEMP-WORLD VERSION-WF-WORLD VERSION-CPU-TASK VERSION-GPU-TASK argo-n-workflow-yamls/WorkflowTemplate.yaml argo-n-workflow-yamls/worldworkflow.yaml
         git commit -m "Bump versions to ${{ steps.bump_versions.outputs.new_version }}, ${{ steps.bump_versions.outputs.new_world_version }}, ${{ steps.bump_versions.outputs.new_cpu_version }}, and ${{ steps.bump_versions.outputs.new_gpu_version }}" || echo "No changes to commit"
         git stash
         git pull --rebase origin main
