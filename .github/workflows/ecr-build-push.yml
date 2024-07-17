@@ -1,4 +1,4 @@
-name: Argo CD GitOps CI/CD
+name: XCite CI/CD with Argo
 
 on:
   push:
