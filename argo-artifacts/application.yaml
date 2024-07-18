@@ -8,11 +8,11 @@ spec:
   source:
     repoURL: https://github.com/sosotechnologies/ecr-build-push-with-version.git
     targetRevision: HEAD
-    path: world #build-push-to-ecr
+    path: argo-artifacts #build-push-to-ecr
     kustomize:
-      namePrefix: world- #build-push-to-ecr-
+      namePrefix: argo-artifacts- #build-push-to-ecr-
   destination:
-    namespace: default
+    namespace: argo
     server: https://kubernetes.default.svc
   syncPolicy:
     automated:
