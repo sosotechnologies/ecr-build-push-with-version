@@ -19,13 +19,13 @@ jobs:
       run: |
         chmod +x scripts/bump_version.sh
         ./scripts/bump_version.sh
-        new_version=$(cat VERSIONS)
+        new_version=$(cat VERSION)
         echo "new_version=$new_version" >> $GITHUB_ENV
         echo "::set-output name=new_version::$new_version"
 
     - name: Update YAML files with new versions
       run: |
-        new_version=$(cat VERSIONS)
+        new_version=$(cat VERSION)
         echo "Updating WorkflowTemplate.yaml and worldworkflow.yaml with versions $new_version"
         sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" argo-artifacts/WorkflowTemplate.yaml
         sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" argo-artifacts/worldworkflow.yaml
@@ -36,7 +36,7 @@ jobs:
       run: |
         git config --global user.name 'sosotechnologies'
         git config --global user.email 'sosotech2000@gmail.com'
-        git add VERSIONS argo-artifacts/WorkflowTemplate.yaml argo-artifacts/worldworkflow.yaml argo-artifacts/world-pipeline.yaml
+        git add VERSION argo-artifacts/WorkflowTemplate.yaml argo-artifacts/worldworkflow.yaml argo-artifacts/world-pipeline.yaml
         git commit -m "Bump versions to ${{ steps.bump_versions.outputs.new_version }}" || echo "No changes to commit"
         git stash
         git pull --rebase origin main
