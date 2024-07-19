@@ -19,13 +19,13 @@ jobs:
       run: |
         chmod +x scripts/bump_version.sh
         ./scripts/bump_version.sh
-        new_version=$(cat VERSIONS)
+        new_version=$(cat VERSION)
         echo "new_version=$new_version" >> $GITHUB_ENV
         echo "::set-output name=new_version::$new_version"
 
     - name: Update YAML files with new versions
       run: |
-        new_version=$(cat VERSIONS)
+        new_version=$(cat VERSION)
         echo "Updating WorkflowTemplate.yaml and worldworkflow.yaml with versions $new_version"
         sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" argo-artifacts/WorkflowTemplate.yaml
         sed -i "s/value: \"[0-9.]*\"/value: \"$new_version\"/g" argo-artifacts/worldworkflow.yaml
@@ -36,7 +36,7 @@ jobs:
       run: |
         git config --global user.name 'sosotechnologies'
         git config --global user.email 'sosotech2000@gmail.com'
-        git add VERSIONS argo-artifacts/WorkflowTemplate.yaml argo-artifacts/worldworkflow.yaml argo-artifacts/world-pipeline.yaml
+        git add VERSION argo-artifacts/WorkflowTemplate.yaml argo-artifacts/worldworkflow.yaml argo-artifacts/world-pipeline.yaml
         git commit -m "Bump versions to ${{ steps.bump_versions.outputs.new_version }}" || echo "No changes to commit"
         git stash
         git pull --rebase origin main
@@ -67,23 +67,6 @@ jobs:
         docker push $ECR_REGISTRY/$REPOSITORY:latest
         cd ../..
 
-    - name: Run Trivy vulnerability scanner for world-docker
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/xcite:${{ steps.bump_versions.outputs.new_version }}
-        format: 'table'
-        exit-code: '0'
-        ignore-unfixed: true
-        vuln-type: 'os,library'
-        severity: 'MEDIUM,HIGH,CRITICAL'
-        output: 'trivy-report-world-docker.txt'
-
-    - name: Upload Trivy report for world-docker
-      uses: actions/upload-artifact@v3
-      with:
-        name: trivy-report-world-docker
-        path: docker/world-docker/trivy-report-world-docker.txt
-
     - name: Build and Push cpu_tasks image
       run: |
         cd docker/cpu_tasks
@@ -96,23 +79,6 @@ jobs:
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
         docker push $ECR_REGISTRY/$REPOSITORY:latest
         cd ../..
-
-    - name: Run Trivy vulnerability scanner for cpu_tasks
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/cpu-task:${{ steps.bump_versions.outputs.new_version }}
-        format: 'table'
-        exit-code: '0'
-        ignore-unfixed: true
-        vuln-type: 'os,library'
-        severity: 'MEDIUM,HIGH,CRITICAL'
-        output: 'trivy-report-cpu-tasks.txt'
-
-    - name: Upload Trivy report for cpu_tasks
-      uses: actions/upload-artifact@v3
-      with:
-        name: trivy-report-cpu-tasks
-        path: docker/cpu_tasks/trivy-report-cpu-tasks.txt
 
     - name: Build and Push gpu_tasks image
       run: |
@@ -127,23 +93,6 @@ jobs:
         docker push $ECR_REGISTRY/$REPOSITORY:latest
         cd ../..
 
-    - name: Run Trivy vulnerability scanner for gpu_tasks
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/gpu-task:${{ steps.bump_versions.outputs.new_version }}
-        format: 'table'
-        exit-code: '0'
-        ignore-unfixed: true
-        vuln-type: 'os,library'
-        severity: 'MEDIUM,HIGH,CRITICAL'
-        output: 'trivy-report-gpu-tasks.txt'
-
-    - name: Upload Trivy report for gpu_tasks
-      uses: actions/upload-artifact@v3
-      with:
-        name: trivy-report-gpu-tasks
-        path: docker/gpu_tasks/trivy-report-gpu-tasks.txt
-
     - name: Build and Push OSM image
       run: |
         cd docker/OSM
@@ -156,20 +105,3 @@ jobs:
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
         docker push $ECR_REGISTRY/$REPOSITORY:latest
         cd ../..
-
-    - name: Run Trivy vulnerability scanner for OSM
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/osm:${{ steps.bump_versions.outputs.new_version }}
-        format: 'table'
-        exit-code: '0'
-        ignore-unfixed: true
-        vuln-type: 'os,library'
-        severity: 'MEDIUM,HIGH,CRITICAL'
-        output: 'trivy-report-osm.txt'
-
-    - name: Upload Trivy report for OSM
-      uses: actions/upload-artifact@v3
-      with:
-        name: trivy-report-osm
-        path: docker/OSM/trivy-report-osm.txt
