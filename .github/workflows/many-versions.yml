@@ -76,7 +76,7 @@ jobs:
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'MEDIUM,HIGH,CRITICAL'
-        output: 'trivy-report-world-docker.txt'
+        output: 'docker/world-docker/trivy-report-world-docker.txt'
 
     - name: Upload Trivy report for world-docker
       uses: actions/upload-artifact@v3
@@ -106,7 +106,7 @@ jobs:
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'MEDIUM,HIGH,CRITICAL'
-        output: 'trivy-report-cpu-tasks.txt'
+        output: 'docker/cpu_tasks/trivy-report-cpu-tasks.txt'
 
     - name: Upload Trivy report for cpu_tasks
       uses: actions/upload-artifact@v3
@@ -136,7 +136,7 @@ jobs:
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'MEDIUM,HIGH,CRITICAL'
-        output: 'trivy-report-gpu-tasks.txt'
+        output: 'docker/gpu_tasks/trivy-report-gpu-tasks.txt'
 
     - name: Upload Trivy report for gpu_tasks
       uses: actions/upload-artifact@v3
@@ -166,7 +166,7 @@ jobs:
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'MEDIUM,HIGH,CRITICAL'
-        output: 'trivy-report-osm.txt'
+        output: 'docker/OSM/trivy-report-osm.txt'
 
     - name: Upload Trivy report for OSM
       uses: actions/upload-artifact@v3
