@@ -9,6 +9,8 @@ spec:
     repoURL: 'https://github.com/sosotechnologies/ecr-build-push-with-version.git'
     targetRevision: HEAD
     path: argo-artifacts
+    kustomize:
+      namePrefix: argo-artifacts-
   destination:
     namespace: default
     server: 'https://kubernetes.default.svc'
