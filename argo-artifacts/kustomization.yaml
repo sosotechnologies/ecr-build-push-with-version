@@ -1,3 +1,4 @@
 resources:
-  - WorkflowTemplate.yaml
-  - worldworkflow.yaml
+  - world-pipeline.yaml
+  - source-pipeline.yaml
+  - recon-pipeline.yaml

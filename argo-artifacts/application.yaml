@@ -1,20 +1,39 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: arrgo
+  name: ecr-build-push-with-version
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: https://github.com/sosotechnologies/ecr-build-push-with-version.git
-    targetRevision: HEAD
-    path: argo-artifacts #build-push-to-ecr
-    kustomize:
-      namePrefix: argo-artifacts- #build-push-to-ecr-
+    repoURL: 'https://github.com/sosotechnologies/ecr-build-push-with-version.git'
+    targetRevision: main
+    path: argo-artifacts
   destination:
-    namespace: argo
-    server: https://kubernetes.default.svc
+    server: 'https://kubernetes.default.svc'
+    namespace: default
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: arrgo
+#   namespace: argocd
+# spec:
+#   project: default
+#   source:
+#     repoURL: https://github.com/sosotechnologies/ecr-build-push-with-version.git
+#     targetRevision: HEAD
+#     path: argo-artifacts #build-push-to-ecr
+#     kustomize:
+#       namePrefix: argo-artifacts- #build-push-to-ecr-
+#   destination:
+#     namespace: argo
+#     server: https://kubernetes.default.svc
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
