@@ -60,7 +60,7 @@ jobs:
         docker build -t ${{ steps.bump_versions.outputs.new_version }} .
         IMAGE_TAG=${{ steps.bump_versions.outputs.new_version }}
         ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
-        REPOSITORY=xcite-worker
+        REPOSITORY=worker
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
@@ -70,7 +70,7 @@ jobs:
     - name: Run Trivy vulnerability scanner for worker
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/xcite-worker:${{ steps.bump_versions.outputs.new_version }}
+        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/worker:${{ steps.bump_versions.outputs.new_version }}
         format: 'table'
         exit-code: '0'
         ignore-unfixed: true
@@ -90,7 +90,7 @@ jobs:
         docker build -t ${{ steps.bump_versions.outputs.new_version }} .
         IMAGE_TAG=${{ steps.bump_versions.outputs.new_version }}
         ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
-        REPOSITORY=xcite-cpu_tasks
+        REPOSITORY=cpu_tasks
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
@@ -100,7 +100,7 @@ jobs:
     - name: Run Trivy vulnerability scanner for cpu_tasks
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/xcite-cpu_tasks:${{ steps.bump_versions.outputs.new_version }}
+        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/cpu_tasks:${{ steps.bump_versions.outputs.new_version }}
         format: 'table'
         exit-code: '0'
         ignore-unfixed: true
@@ -120,7 +120,7 @@ jobs:
         docker build -t ${{ steps.bump_versions.outputs.new_version }} .
         IMAGE_TAG=${{ steps.bump_versions.outputs.new_version }}
         ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
-        REPOSITORY=xcite-gpu_tasks
+        REPOSITORY=gpu_tasks
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
@@ -130,7 +130,7 @@ jobs:
     - name: Run Trivy vulnerability scanner for gpu_tasks
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/xcite-gpu_tasks:${{ steps.bump_versions.outputs.new_version }}
+        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/gpu_tasks:${{ steps.bump_versions.outputs.new_version }}
         format: 'table'
         exit-code: '0'
         ignore-unfixed: true
@@ -150,7 +150,7 @@ jobs:
         docker build -t ${{ steps.bump_versions.outputs.new_version }} .
         IMAGE_TAG=${{ steps.bump_versions.outputs.new_version }}
         ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
-        REPOSITORY=xcite-osm-osmosis
+        REPOSITORY=osm-osmosis
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
@@ -160,7 +160,7 @@ jobs:
     - name: Run Trivy vulnerability scanner for OSM
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/xcite-osm-osmosis:${{ steps.bump_versions.outputs.new_version }}
+        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/osm-osmosis:${{ steps.bump_versions.outputs.new_version }}
         format: 'table'
         exit-code: '0'
         ignore-unfixed: true
@@ -174,25 +174,25 @@ jobs:
         name: trivy-report-osm
         path: docker/OSM/trivy-report-osm.txt
 
-  deploy:
-    name: Deploy to Argo CD
-    runs-on: ubuntu-latest
-    needs: build
+  # deploy:
+  #   name: Deploy to Argo CD
+  #   runs-on: ubuntu-latest
+  #   needs: build
 
-    steps:
-    - name: Check out code
-      uses: actions/checkout@v2
+  #   steps:
+  #   - name: Check out code
+  #     uses: actions/checkout@v2
 
-    - name: Check VERSION file content
-      run: cat VERSION
+  #   - name: Check VERSION file content
+  #     run: cat VERSION
 
-    - name: Print YAML files before update
-      run: |
-        cat argo-artifacts/recon-pipeline.yaml
-        cat argo-artifacts/source-pipeline.yaml
-        cat argo-artifacts/world-pipeline.yaml
+  #   - name: Print YAML files before update
+  #     run: |
+  #       cat argo-artifacts/recon-pipeline.yaml
+  #       cat argo-artifacts/source-pipeline.yaml
+  #       cat argo-artifacts/world-pipeline.yaml
 
-    - name: Update kustomization.yaml with new image tags
-      run: |
-        new_version=${{ steps.bump_versions.outputs.new_version }}
-        sed -i "s/newTag: .*/newTag: $new_version/g" argo-artifacts/kustomization.yaml
+  #   - name: Update kustomization.yaml with new image tags
+  #     run: |
+  #       new_version=${{ steps.bump_versions.outputs.new_version }}
+  #       sed -i "s/newTag: .*/newTag: $new_version/g" argo-artifacts/kustomization.yaml
