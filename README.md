@@ -20,3 +20,8 @@ docker pull <your-account-number>.dkr.ecr.us-east-1.amazonaws.com/gpu_tasks:late
 
 docker run -itdp 8088:8088 <your-account-number>.dkr.ecr.us-east-1.amazonaws.com/gpu_tasks:latest
 ```
+
+368085106192.dkr.ecr.us-east-1.amazonaws.com/cpu_task
+368085106192.dkr.ecr.us-east-1.amazonaws.com/gpu_task
+368085106192.dkr.ecr.us-east-1.amazonaws.com/osm-osmosis
+368085106192.dkr.ecr.us-east-1.amazonaws.com/worker
