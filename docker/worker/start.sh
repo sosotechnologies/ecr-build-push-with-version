@@ -25,8 +25,6 @@ if [[ -n $GITHUB_ACCESS_TOKEN ]]; then
     _URL="$(echo "${RUNNER_URL/${_PROTO}/}")"
     _PATH="$(echo "${_URL}" | grep / | cut -d/ -f2-)"
 
-    echo "_PATH: $_PATH"
-
     RUNNER_TOKEN="$(curl -XPOST -fsSL \
         -H "Authorization: token ${GITHUB_ACCESS_TOKEN}" \
         -H "Accept: application/vnd.github.v3+json" \
@@ -49,4 +47,4 @@ trap 'cleanup; exit 143' TERM
 
 ./run.sh --once & wait $!
 cleanup
-exit $err
+exit $?

@@ -1,9 +1,8 @@
 # Base image
-FROM ubuntu:18.04
-ENV DEBIAN_FRONTEND=noninteractive
+FROM ubuntu:20.04
 
 # Set the GitHub runner version
-ARG RUNNER_VERSION="2.280.3"
+ARG RUNNER_VERSION="2.317.0"
 
 # Update the base packages
 RUN apt-get update -y && apt-get upgrade -y
@@ -25,7 +24,7 @@ RUN mkdir -p /home/docker/actions-runner
 WORKDIR /home/docker/actions-runner
 
 # Download the latest runner package
-RUN curl -O -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
+RUN curl -o actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
     && tar xzf ./actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
 
 # Install dependencies for the runner
