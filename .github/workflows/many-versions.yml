@@ -60,7 +60,7 @@ jobs:
         docker build -t ${{ steps.bump_versions.outputs.new_version }} .
         IMAGE_TAG=${{ steps.bump_versions.outputs.new_version }}
         ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com
-        REPOSITORY=xcite-worker
+        REPOSITORY=runners
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
         docker push $ECR_REGISTRY/$REPOSITORY:$IMAGE_TAG
         docker tag $IMAGE_TAG $ECR_REGISTRY/$REPOSITORY:latest
@@ -70,7 +70,7 @@ jobs:
     - name: Run Trivy vulnerability scanner for worker
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/xcite-worker:${{ steps.bump_versions.outputs.new_version }}
+        image-ref: ${{ secrets.AWS_ACCOUNT_NUMBER }}.dkr.ecr.us-east-1.amazonaws.com/runners:${{ steps.bump_versions.outputs.new_version }}
         format: 'table'
         exit-code: '0'
         ignore-unfixed: true
