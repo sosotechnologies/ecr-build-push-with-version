@@ -25,7 +25,7 @@ spec:
       - name: logLocation
         value: "logs"
       - name: version
-        value: "2.1.9"  # This will be updated dynamically in the pipeline
+        value: "2.1.10"  # This will be updated dynamically in the pipeline
       - name: retryCount
         value: 2
       - name: worldInfoLocation
