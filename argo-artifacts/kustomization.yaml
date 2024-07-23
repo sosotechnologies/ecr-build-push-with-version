@@ -1,9 +1,8 @@
 # apiVersion: kustomize.config.k8s.io/v1beta1
 # kind: Kustomization
 resources:
-  - world-pipeline.yaml
-  - source-pipeline.yaml
   - recon-pipeline.yaml
+  - 1-deploy.yaml
 
 # images:
 #   - name: worker

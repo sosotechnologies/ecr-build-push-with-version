@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arrgo
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/sosotechnologies/ecr-build-push-with-version.git
+    targetRevision: HEAD
+    path: argo-artifacts
+    kustomize:
+      namePrefix: argowf-
+  destination:
+    namespace: sosargodeploy
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
