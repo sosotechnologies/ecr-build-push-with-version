@@ -54,7 +54,6 @@ spec:
 # spec:
 #   entrypoint: world-create
 #   onExit: exit-handler
-
 #   arguments:
 #     parameters:
 #       - name: cluster
@@ -70,7 +69,6 @@ spec:
 #       - name: retryCount
 #         value: 2
 #       - name: worldInfoLocation
-
 #   templates:
 #     - name: world-create
 #       steps:
