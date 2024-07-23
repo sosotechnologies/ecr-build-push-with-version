@@ -1,43 +1,84 @@
-apiVersion: argoproj.io/v1alpha1
-kind: WorkflowTemplate
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: world-pipeline
-  namespace: argo
-  annotations:
-    workflows.argoproj.io/description: |
-      templates for world creation and destruction
-      must be run with service account that has access to storageclasses and persistentvolumeclaims
-      add '--serviceaccount argo-infra' to run workflow
-    workflows.argoproj.io/maintainer: '@eredd.carr@reded.com'
-    workflows.argoproj.io/tags: world
+  name: deployment-1
+  namespace: sosargodeploy
+  labels:
+    app: nginx
 spec:
-  entrypoint: world-create
-  onExit: exit-handler
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+        env:
+        - name: SOSO_BUCKETED1
+          value: "sosos3-bucket-1"
+        - name: SOSO_BUCKETED2
+          value: "sosos3-bucket-2"
+        - name: REGION
+          value: "us-east-1"
+        - name: WORKING_LOCATION
+          value: "/working"
+        - name: LOG_LOCATION
+          value: "logs"
+        - name: SECONDER_NAME
+          value: "unique-seconder"
+        - name: CONFIG_FILE
+          value: "config.json"
+        - name: VERSION
+          value: "2.1.9"
+        - name: WORLD_INFO_LOCATION
+          value: "info-location"
+# apiVersion: argoproj.io/v1alpha1
+# kind: WorkflowTemplate
+# metadata:
+#   name: world-pipeline
+#   namespace: argo
+#   annotations:
+#     workflows.argoproj.io/description: |
+#       templates for world creation and destruction
+#       must be run with service account that has access to storageclasses and persistentvolumeclaims
+#       add '--serviceaccount argo-infra' to run workflow
+#     workflows.argoproj.io/maintainer: '@eredd.carr@reded.com'
+#     workflows.argoproj.io/tags: world
+# spec:
+#   entrypoint: world-create
+#   onExit: exit-handler
 
-  arguments:
-    parameters:
-      - name: cluster
-      - name: region
-        value: "us-east-1"
-      - name: imageRepo
-      - name: worldName
-      - name: worldId
-      - name: logLocation
-        value: "logs"
-      - name: version
-        value: "2.1.9"  # This will be updated dynamically in the pipeline
-      - name: retryCount
-        value: 2
-      - name: worldInfoLocation
+#   arguments:
+#     parameters:
+#       - name: cluster
+#       - name: region
+#         value: "us-east-1"
+#       - name: imageRepo
+#       - name: worldName
+#       - name: worldId
+#       - name: logLocation
+#         value: "logs"
+#       - name: version
+#         value: "2.1.9"  # This will be updated dynamically in the pipeline
+#       - name: retryCount
+#         value: 2
+#       - name: worldInfoLocation
 
-  templates:
-    - name: world-create
-      steps:
-        - - name: create-world
-            template: create-world
+#   templates:
+#     - name: world-create
+#       steps:
+#         - - name: create-world
+#             template: create-world
 
-    - name: create-world
-      container:
-        image: "{{workflow.parameters.imageRepo}}:{{workflow.parameters.version}}"
-        command: ["/bin/bash"]
-        args: ["-c", "echo Creating world..."]
+#     - name: create-world
+#       container:
+#         image: "{{workflow.parameters.imageRepo}}:{{workflow.parameters.version}}"
+#         command: ["/bin/bash"]
+#         args: ["-c", "echo Creating world..."]
