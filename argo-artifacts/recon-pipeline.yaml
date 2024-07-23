@@ -26,7 +26,7 @@ spec:
       - name: configFile
         value: "config.json"
       - name: version
-        value: "2.1.6"
+        value: "2.1.7"
       - name: worldInfoLocation
         value: "info-location"
   templates:
