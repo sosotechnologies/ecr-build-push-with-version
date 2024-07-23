@@ -2,6 +2,7 @@
 # kind: Kustomization
 resources:
   - recon-pipeline.yaml
+  - source-pipeline.yaml
 
 # images:
 #   - name: worker

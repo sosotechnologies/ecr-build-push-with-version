@@ -21,24 +21,22 @@ spec:
         ports:
         - containerPort: 80
         env:
-        - name: SOSO_BUCKETED1
-          value: "sosos3-bucket-1"
-        - name: SOSO_BUCKETED2
-          value: "sosos3-bucket-2"
-        - name: REGION
-          value: "us-east-1"
-        - name: WORKING_LOCATION
-          value: "/working"
-        - name: LOG_LOCATION
-          value: "logs"
-        - name: SECONDER_NAME
-          value: "unique-seconder"
-        - name: CONFIG_FILE
-          value: "config.json"
+        # - name: SOSO_BUCKETED1
+        #   value: "sosos3-bucket-1"
+        # - name: SOSO_BUCKETED2
+        #   value: "sosos3-bucket-2"
+        # - name: REGION
+        #   value: "us-east-1"
+        # - name: WORKING_LOCATION
+        #   value: "/working"
+        # - name: LOG_LOCATION
+        #   value: "logs"
+        # - name: SECONDER_NAME
+        #   value: "unique-seconder"
+        # - name: CONFIG_FILE
+        #   value: "config.json"
         - name: VERSION
           value: "2.1.11"
-        - name: WORLD_INFO_LOCATION
-          value: "info-location"
 # apiVersion: argoproj.io/v1alpha1
 # kind: WorkflowTemplate
 # metadata:
